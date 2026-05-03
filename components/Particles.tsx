@@ -3,25 +3,24 @@
 import { useCallback } from "react"
 import Particles from "@tsparticles/react"
 import { loadSlim } from "@tsparticles/slim"
+import type { Engine } from "@tsparticles/engine"
 
 export default function ParticlesBg() {
-  const particlesInit = useCallback(async (engine: any) => {
+  const particlesInit = useCallback(async (engine: Engine) => {
     await loadSlim(engine)
   }, [])
 
   return (
     <Particles
       id="tsparticles"
-      init={particlesInit}
       options={{
         fullScreen: { enable: false },
-
         fpsLimit: 60,
 
         particles: {
           number: {
             value: 90,
-            density: { enable: true, area: 800 },
+            density: { enable: true, width: 800, height: 800 },
           },
 
           color: {
