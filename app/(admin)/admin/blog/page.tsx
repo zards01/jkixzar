@@ -36,52 +36,51 @@ export default function BlogAdminPage() {
 
   // ================= DELETE =================
   const getPublicId = (url: string) => {
-  try {
-    const parts = url.split("/")
-    const file = parts[parts.length - 1]
-    return file.split(".")[0]
-  } catch {
-    return null
-  }
-}
-
-const handleDelete = async (blog: Blog) => {
-  if (!confirm("Hapus blog + gambar?")) return
-
-  try {
-    // 🔥 hapus image
-    if (blog.image) {
-      const publicId = getPublicId(blog.image)
-
-      console.log("DELETE ID:", publicId)
-
-      if (publicId) {
-        await fetch("/api/delete_image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ public_id: publicId }),
-        })
-      }
+    try {
+      const parts = url.split("/")
+      const file = parts[parts.length - 1]
+      return file.split(".")[0]
+    } catch {
+      return null
     }
-
-    // 🔥 hapus database
-    const { error } = await supabase
-      .from("blogs")
-      .delete()
-      .eq("id", blog.id)
-
-    if (error) throw error
-
-    setBlogs((prev) => prev.filter((b) => b.id !== blog.id))
-
-    alert("Berhasil hapus")
-  } catch (err) {
-    console.log(err)
-    alert("Gagal hapus")
   }
-}
+
+  const handleDelete = async (id: string, image?: string) => {
+    if (!confirm("Hapus blog + gambar?")) return
+
+    try {
+      // 🔥 DELETE IMAGE
+      if (image) {
+        const publicId = getPublicId(image)
+
+        if (publicId) {
+          await fetch("/api/delete_image", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ public_id: publicId }),
+          })
+        }
+      }
+
+      // 🔥 DELETE DB
+      const { error } = await supabase
+        .from("blogs")
+        .delete()
+        .eq("id", id)
+
+      if (error) throw error
+
+      setBlogs((prev) => prev.filter((b) => b.id !== id))
+
+      alert("Berhasil hapus")
+    } catch (err) {
+      console.log(err)
+      alert("Gagal hapus")
+    }
+  }
+
   return (
     <div className="p-4 md:p-6 bg-zinc-950 min-h-screen text-zinc-100">
 
@@ -109,7 +108,7 @@ const handleDelete = async (blog: Blog) => {
         <p className="text-zinc-500">Belum ada blog</p>
       )}
 
-      {/* ================= DESKTOP TABLE ================= */}
+      {/* ================= DESKTOP ================= */}
       {!loading && blogs.length > 0 && (
         <div className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
 
@@ -130,24 +129,16 @@ const handleDelete = async (blog: Blog) => {
                   key={blog.id}
                   className="border-t border-zinc-800 hover:bg-zinc-800/60 transition"
                 >
-                  {/* IMAGE */}
                   <td className="p-3">
                     {blog.image ? (
-                      <img
-                        src={blog.image}
-                        className="w-14 h-14 object-cover rounded"
-                      />
+                      <img src={blog.image} className="w-14 h-14 object-cover rounded" />
                     ) : (
                       <div className="w-14 h-14 bg-zinc-800 rounded" />
                     )}
                   </td>
 
-                  {/* TITLE */}
-                  <td className="p-3 font-medium text-zinc-100">
-                    {blog.title}
-                  </td>
+                  <td className="p-3 font-medium">{blog.title}</td>
 
-                  {/* STATUS */}
                   <td className="p-3">
                     {blog.published ? (
                       <span className="text-green-400 bg-green-500/10 px-2 py-1 rounded text-xs">
@@ -160,32 +151,23 @@ const handleDelete = async (blog: Blog) => {
                     )}
                   </td>
 
-                  {/* DATE */}
                   <td className="p-3 text-zinc-400">
                     {new Date(blog.created_at).toLocaleDateString()}
                   </td>
 
-                  {/* ACTION */}
                   <td className="p-3 text-center">
                     <div className="flex justify-center gap-4 text-sm">
 
-                      <Link
-                        href={`/blog/${blog.slug}`}
-                        target="_blank"
-                        className="text-blue-400 hover:text-blue-300"
-                      >
+                      <Link href={`/blog/${blog.slug}`} target="_blank" className="text-blue-400 hover:text-blue-300">
                         Preview
                       </Link>
 
-                      <Link
-                        href={`/admin/blog/edit/${blog.id}`}
-                        className="text-green-400 hover:text-green-300"
-                      >
+                      <Link href={`/admin/blog/edit/${blog.id}`} className="text-green-400 hover:text-green-300">
                         Edit
                       </Link>
 
                       <button
-                       onClick={() => handleDelete(blog)}
+                        onClick={() => handleDelete(blog.id, blog.image)}
                         className="text-red-400 hover:text-red-300"
                       >
                         Hapus
@@ -201,7 +183,7 @@ const handleDelete = async (blog: Blog) => {
         </div>
       )}
 
-      {/* ================= MOBILE CARD ================= */}
+      {/* ================= MOBILE ================= */}
       {!loading && blogs.length > 0 && (
         <div className="grid gap-4 md:hidden">
 
@@ -212,20 +194,14 @@ const handleDelete = async (blog: Blog) => {
             >
 
               <div className="flex gap-3">
-
-                {/* IMAGE */}
                 {blog.image ? (
-                  <img
-                    src={blog.image}
-                    className="w-20 h-20 object-cover rounded"
-                  />
+                  <img src={blog.image} className="w-20 h-20 object-cover rounded" />
                 ) : (
                   <div className="w-20 h-20 bg-zinc-800 rounded" />
                 )}
 
-                {/* INFO */}
                 <div className="flex-1">
-                  <h2 className="font-semibold text-sm line-clamp-2 text-zinc-100">
+                  <h2 className="font-semibold text-sm line-clamp-2">
                     {blog.title}
                   </h2>
 
@@ -245,29 +221,20 @@ const handleDelete = async (blog: Blog) => {
                     )}
                   </div>
                 </div>
-
               </div>
 
-              {/* ACTION */}
               <div className="flex justify-between mt-4 text-sm border-t border-zinc-800 pt-3">
 
-                <Link
-                  href={`/blog/${blog.slug}`}
-                  target="_blank"
-                  className="text-blue-400"
-                >
+                <Link href={`/blog/${blog.slug}`} target="_blank" className="text-blue-400">
                   Preview
                 </Link>
 
-                <Link
-                  href={`/admin/blog/edit/${blog.id}`}
-                  className="text-green-400"
-                >
+                <Link href={`/admin/blog/edit/${blog.id}`} className="text-green-400">
                   Edit
                 </Link>
 
                 <button
-                  onClick={() => handleDelete(blog.id)}
+                  onClick={() => handleDelete(blog.id, blog.image)}
                   className="text-red-400"
                 >
                   Hapus
