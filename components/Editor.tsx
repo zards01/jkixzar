@@ -62,12 +62,14 @@ export default function Editor({ content, setContent }: any) {
         if (html) {
           editor?.commands.insertContent(cleanHTML(html))
         } else {
-          editor?.commands.insertContent(
-            text
-              .split("\n")
-              .map((l) => `<p>${l}</p>`)
-              .join("")
-          )
+          const safeText = text ?? ""
+
+editor?.commands.insertContent(
+  safeText
+    .split("\n")
+    .map((l) => `<p>${l}</p>`)
+    .join("")
+)
         }
 
         return true
