@@ -5,8 +5,8 @@ import Particles from "@/components/Particles"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-type Project = {
-  id: string
+/* ================= TYPE KHUSUS QUERY ================= */
+type ProjectGalleryRow = {
   gallery: string[] | null
   category_id: string
 }
@@ -27,13 +27,12 @@ export default function TourTravelPage() {
       const { data } = await supabase
         .from("projects")
         .select("gallery, category_id")
-        // 🔥 ganti dengan ID category tour kamu
         .eq("category_id", "271c01c4-55eb-4a3b-8f5c-798eb960ee5f")
         .order("created_at", { ascending: false })
 
       if (data) {
-        const images = data
-          .flatMap((item: Project) => item.gallery || [])
+        const images = (data as ProjectGalleryRow[])
+          .flatMap((item) => item.gallery ?? [])
           .filter(Boolean)
 
         setGallery(images)
@@ -84,7 +83,6 @@ export default function TourTravelPage() {
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black" />
-
         <div className="absolute inset-0 opacity-30">
           <Particles />
         </div>
@@ -92,9 +90,7 @@ export default function TourTravelPage() {
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
             Tour & Travel{" "}
-            <span className="text-orange-500">
-              Experience
-            </span>
+            <span className="text-orange-500">Experience</span>
           </h1>
 
           <p className="mt-4 text-zinc-300">
@@ -113,11 +109,9 @@ export default function TourTravelPage() {
 
       {/* ================= INTRO ================= */}
       <section className="relative py-20 px-6 bg-black">
-
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,120,0,0.08),transparent_60%)]" />
 
         <div className="relative max-w-4xl mx-auto text-center">
-
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Perjalanan yang{" "}
             <span className="text-orange-500">Tak Terlupakan</span>
@@ -130,21 +124,17 @@ export default function TourTravelPage() {
           <p className="text-zinc-400 mt-4">
             Kami menempatkan pengalaman pelanggan sebagai prioritas utama, memastikan setiap perjalanan menjadi kisah yang luar biasa.
           </p>
-
         </div>
       </section>
 
       {/* ================= SERVICES ================= */}
       <section className="py-20 px-6 bg-zinc-950">
-
         <div className="max-w-6xl mx-auto text-center">
-
           <h2 className="text-4xl font-bold mb-12">
             Travel <span className="text-orange-500">Services</span>
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
-
             {[
               {
                 title: "Open Trip",
@@ -164,24 +154,16 @@ export default function TourTravelPage() {
                 whileHover={{ y: -10 }}
                 className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800"
               >
-                <h3 className="text-lg font-semibold">
-                  {item.title}
-                </h3>
-
-                <p className="text-zinc-400 text-sm mt-2">
-                  {item.desc}
-                </p>
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="text-zinc-400 text-sm mt-2">{item.desc}</p>
               </motion.div>
             ))}
-
           </div>
-
         </div>
       </section>
 
       {/* ================= GALLERY ================= */}
       <section className="py-24 px-6 bg-black">
-
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center mb-14">
@@ -191,9 +173,7 @@ export default function TourTravelPage() {
           </div>
 
           {loading && (
-            <p className="text-center text-zinc-400">
-              Loading gallery...
-            </p>
+            <p className="text-center text-zinc-400">Loading gallery...</p>
           )}
 
           {!loading && gallery.length > 0 && (
@@ -236,7 +216,6 @@ export default function TourTravelPage() {
 
             </div>
           )}
-
         </div>
       </section>
 
@@ -260,7 +239,6 @@ export default function TourTravelPage() {
 
       {/* ================= CTA ================= */}
       <section className="py-20 text-center bg-gradient-to-b from-black to-zinc-900">
-
         <h2 className="text-4xl font-bold">
           Siap Jelajahi Dunia{" "}
           <span className="text-orange-500">Bersama Kami?</span>
@@ -272,7 +250,6 @@ export default function TourTravelPage() {
         >
           Booking Sekarang
         </a>
-
       </section>
 
     </main>
