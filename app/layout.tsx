@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "EO Premium",
+  title: "Juragan Kreasi Indonesia",
   description: "Event Organizer Profesional & Premium",
 }
 
