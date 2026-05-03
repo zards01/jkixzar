@@ -154,7 +154,7 @@ export default function TestimonialsPage() {
                   </td>
 
                   <p className="italic text-zinc-300">
-                "{t.content}"
+                {t.content}
               </p>
 
                   <td className="p-4 text-right">

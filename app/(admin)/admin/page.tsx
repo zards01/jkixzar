@@ -3,53 +3,83 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts"
+import { motion } from "framer-motion"
 
-type Chart = {
-  name: string
-  total: number
-}
-
-type ClientStat = {
-  name: string
-  total: number
-}
+const MONTHS = [
+  "Jan","Feb","Mar","Apr","May","Jun",
+  "Jul","Aug","Sep","Oct","Nov","Dec"
+]
 
 export default function AdminDashboard() {
+
+  const [ready, setReady] = useState(false)
+
   const [stats, setStats] = useState({
     projects: 0,
     clients: 0,
     blogs: 0,
   })
 
-  const [chartData, setChartData] = useState<Chart[]>([])
-  const [topClients, setTopClients] = useState<ClientStat[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
+  const [topClients, setTopClients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // ================= FETCH =================
-  const fetchData = async () => {
-    setLoading(true)
+  // ================= AUTH =================
+  useEffect(() => {
+    let mounted = true
 
-    try {
-      // ===== COUNT =====
-      const [projectsRes, clientsRes, blogsRes] = await Promise.all([
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession()
+
+      if (!data.session && mounted) {
+        window.location.href = "/login"
+      } else {
+        setReady(true)
+      }
+    }
+
+    checkSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          window.location.href = "/login"
+        }
+      }
+    )
+
+    return () => {
+      mounted = false
+      listener.subscription.unsubscribe()
+    }
+  }, [])
+
+  // ================= FETCH =================
+  useEffect(() => {
+    if (!ready) return
+
+    const fetchData = async () => {
+      setLoading(true)
+
+      const [p, c, b] = await Promise.all([
         supabase.from("projects").select("*", { count: "exact", head: true }),
         supabase.from("clients").select("*", { count: "exact", head: true }),
         supabase.from("blogs").select("*", { count: "exact", head: true }),
       ])
 
       setStats({
-        projects: projectsRes.count || 0,
-        clients: clientsRes.count || 0,
-        blogs: blogsRes.count || 0,
+        projects: p.count || 0,
+        clients: c.count || 0,
+        blogs: b.count || 0,
       })
 
-      // ===== PROJECT DATA =====
       const { data: projects } = await supabase
         .from("projects")
         .select("created_at, client")
@@ -57,51 +87,48 @@ export default function AdminDashboard() {
       const monthly: Record<string, number> = {}
       const clientMap: Record<string, number> = {}
 
+      MONTHS.forEach((m) => (monthly[m] = 0))
+
       projects?.forEach((p) => {
-        // ===== MONTHLY =====
-        const date = new Date(p.created_at)
-        const month = date.toLocaleString("default", { month: "short" })
+        const month = new Date(p.created_at).toLocaleString("default", {
+          month: "short",
+        })
 
-        monthly[month] = (monthly[month] || 0) + 1
+        monthly[month]++
 
-        // ===== CLIENT COUNT =====
         if (p.client) {
           clientMap[p.client] = (clientMap[p.client] || 0) + 1
         }
       })
 
-      // ===== FORMAT CHART =====
-      const formattedChart: Chart[] = Object.keys(monthly).map((m) => ({
-        name: m,
-        total: monthly[m],
-      }))
-
-      // ===== SORT CLIENT =====
-      const sortedClients: ClientStat[] = Object.keys(clientMap)
-        .map((name) => ({
-          name,
-          total: clientMap[name],
+      setChartData(
+        MONTHS.map((m) => ({
+          month: m,
+          total: monthly[m],
         }))
-        .sort((a, b) => b.total - a.total)
+      )
 
-      setChartData(formattedChart)
-      setTopClients(sortedClients)
+      setTopClients(
+        Object.keys(clientMap)
+          .map((name) => ({
+            name,
+            total: clientMap[name],
+          }))
+          .sort((a, b) => b.total - a.total)
+      )
 
-    } catch (err) {
-      console.log(err)
-    } finally {
       setLoading(false)
     }
-  }
 
-  useEffect(() => {
     fetchData()
-  }, [])
+  }, [ready])
+
+  if (!ready) return null
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-6">
 
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-zinc-500 text-sm">
@@ -112,9 +139,27 @@ export default function AdminDashboard() {
       {/* ================= STATS ================= */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
 
-        <StatCard title="Total Event" value={stats.projects} loading={loading} />
-        <StatCard title="Total Client" value={stats.clients} loading={loading} />
-        <StatCard title="Blog Post" value={stats.blogs} loading={loading} />
+        {[
+          { title: "Total Event", value: stats.projects },
+          { title: "Total Client", value: stats.clients },
+          { title: "Blog Post", value: stats.blogs },
+        ].map((item, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: 0.5,
+              delay: i * 0.15,
+            }}
+          >
+            <StatCard
+              title={item.title}
+              value={item.value}
+              loading={loading}
+            />
+          </motion.div>
+        ))}
 
       </div>
 
@@ -128,12 +173,36 @@ export default function AdminDashboard() {
         {loading ? (
           <div className="h-64 bg-zinc-800 animate-pulse rounded-xl" />
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" stroke="#aaa" />
-              <Tooltip />
-              <Bar dataKey="total" radius={[6, 6, 0, 0]} />
-            </BarChart>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={chartData}>
+
+              <CartesianGrid stroke="#27272a" strokeDasharray="3 3" vertical={false} />
+
+              <XAxis
+                dataKey="month"
+                stroke="#71717a"
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <Tooltip
+                contentStyle={{
+                  background: "#18181b",
+                  border: "1px solid #27272a",
+                  borderRadius: "10px",
+                }}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#f97316"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+
+            </LineChart>
           </ResponsiveContainer>
         )}
       </div>
@@ -163,7 +232,6 @@ export default function AdminDashboard() {
                 key={i}
                 className="flex items-center justify-between bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 hover:border-orange-500/40 transition"
               >
-
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 flex items-center justify-center bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold">
                     {i + 1}
@@ -177,7 +245,6 @@ export default function AdminDashboard() {
                 <p className="text-sm text-zinc-400">
                   {c.total} project
                 </p>
-
               </div>
             ))}
 
@@ -201,14 +268,33 @@ function StatCard({
   loading: boolean
 }) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-lg">
+    <div
+      className="
+        group
+        bg-zinc-900 border border-zinc-800 rounded-2xl p-6
+        transition-all duration-300
+        hover:scale-[1.03]
+        hover:border-orange-500/40
+        hover:shadow-[0_0_30px_rgba(255,120,0,0.25)]
+      "
+    >
 
-      <p className="text-zinc-500 text-sm">{title}</p>
+      <p className="
+        text-zinc-500 text-sm
+        transition-colors duration-300
+        group-hover:text-orange-300
+      ">
+        {title}
+      </p>
 
       {loading ? (
         <div className="h-8 w-20 bg-zinc-800 mt-2 rounded animate-pulse" />
       ) : (
-        <h2 className="text-3xl font-bold mt-2 text-white">
+        <h2 className="
+          text-3xl font-bold mt-2 text-white
+          transition-colors duration-300
+          group-hover:text-orange-400
+        ">
           {value}
         </h2>
       )}
