@@ -1,3 +1,4 @@
+
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
@@ -6,12 +7,14 @@ import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 
-// 🔥 TYPE KHUSUS (SESUAI QUERY)
-type ProjectGallery = {
+type Project = {
+  id: string
   gallery: string[] | null
+  category_id: string
 }
 
 export default function BroadcastingPage() {
+
   const ref = useRef(null)
 
   /* ================= STATE ================= */
@@ -25,20 +28,14 @@ export default function BroadcastingPage() {
     const fetchGallery = async () => {
       setLoading(true)
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("projects")
         .select("gallery")
         .eq("category_id", "09c9a8ba-4da7-4091-866f-b4a0a2159a5b")
         .order("created_at", { ascending: false })
 
-      if (error) {
-        console.log(error)
-        setLoading(false)
-        return
-      }
-
       if (data) {
-        const images = (data as ProjectGallery[])
+        const images = data
           .flatMap((item) => item.gallery || [])
           .filter(Boolean)
 
@@ -69,11 +66,10 @@ export default function BroadcastingPage() {
     document.body.style.overflow = lightboxOpen ? "hidden" : "auto"
   }, [lightboxOpen])
 
-  /* ================= SIDE IMAGE SAFE ================= */
-  const sideImages =
-    gallery.length > 0
-      ? [1, 2, 3].map((i) => gallery[(index + i) % gallery.length])
-      : []
+  /* ================= SIDE IMAGE ================= */
+  const sideImages = [1, 2, 3].map(
+    (i) => gallery[(index + i) % gallery.length]
+  )
 
   return (
     <main className="bg-black text-white overflow-hidden">
@@ -81,8 +77,9 @@ export default function BroadcastingPage() {
       {/* ================= HERO ================= */}
       <section
         ref={ref}
-        className="relative flex items-center justify-center min-h-[80vh]"
+        className="relative flex items-center justify-center min-h-[80vh] overflow-hidden"
       >
+
         <div className="absolute inset-0">
           <img
             src="/image/multicam.png"
@@ -125,8 +122,209 @@ export default function BroadcastingPage() {
         </div>
       </section>
 
-      {/* ================= GALLERY ================= */}
+      {/* ================= INTRO ================= */}
+<section className="relative py-20 px-6 bg-black">
+
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,120,0,0.08),transparent_60%)]" />
+
+  <div className="relative max-w-6xl mx-auto text-center">
+
+    <h2 className="text-3xl md:text-4xl font-bold mb-6">
+      Tentang <span className="text-orange-500">Layanan Ini</span>
+    </h2>
+
+    <p className="text-zinc-400 leading-relaxed max-w-3xl mx-auto">
+      Broadcasting Production adalah layanan yang berfokus pada
+      penyediaan sistem live streaming dan produksi video profesional
+      untuk berbagai jenis event.
+    </p>
+
+    <p className="text-zinc-400 mt-4 max-w-3xl mx-auto">
+      Kami memastikan kualitas visual yang tajam, audio yang jernih,
+      serta sistem teknis yang stabil untuk pengalaman broadcast tanpa gangguan.
+    </p>
+
+    {/* ================= CARD LAYANAN ================= */}
+    <div className="grid md:grid-cols-3 gap-6 mt-16">
+
+      {[
+        {
+          title: "Live Streaming",
+          desc: "Streaming ke berbagai platform dengan kualitas stabil dan profesional.",
+          img: "/image/live-streaming.png",
+        },
+        {
+          title: "Multi Camera Production",
+          desc: "Produksi multi kamera dengan switching system untuk hasil cinematic.",
+          img: "/image/multicam.png",
+        },
+        {
+          title: "Audio Visual System",
+          desc: "Setup audio & visual lengkap untuk mendukung kualitas broadcast terbaik.",
+          img: "/image/audiovisual.png",
+        },
+      ].map((item, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.15 }}
+          whileHover={{ y: -8 }}
+          className="
+            bg-zinc-900/80 backdrop-blur-xl
+            border border-zinc-800
+            rounded-2xl overflow-hidden
+            hover:border-orange-500/40
+            transition
+          "
+        >
+
+          {/* IMAGE */}
+          <div className="h-[180px] overflow-hidden">
+            <img
+              src={item.img}
+              className="w-full h-full object-cover hover:scale-110 transition duration-700"
+            />
+          </div>
+
+          {/* CONTENT */}
+          <div className="p-6 text-left">
+            <h3 className="text-lg font-semibold">
+              {item.title}
+            </h3>
+
+            <p className="text-zinc-400 text-sm mt-2">
+              {item.desc}
+            </p>
+          </div>
+
+        </motion.div>
+      ))}
+
+    </div>
+
+  </div>
+</section>
+
+      {/* ================= SERVICES ================= */}
+      <section className="relative py-20 px-6 bg-zinc-950">
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,120,0,0.08),transparent_70%)]" />
+
+        <div className="relative max-w-6xl mx-auto">
+
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Services We <span className="text-orange-500">Provided</span>
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+
+            {[
+              {
+                title: "Live Streaming",
+                items: [
+                  "YouTube, Zoom, Webinar",
+                  "Multi platform streaming",
+                  "Stable streaming system",
+                ],
+              },
+              {
+                title: "Multi Camera Production",
+                items: [
+                  "Switching system",
+                  "Professional camera setup",
+                  "Cinematic visuals",
+                ],
+              },
+              {
+                title: "Audio & Visual",
+                items: [
+                  "Audio mixing",
+                  "Lighting setup",
+                  "LED & screen system",
+                ],
+              },
+              {
+                title: "Recording & Documentation",
+                items: [
+                  "Full event recording",
+                  "Highlight video",
+                  "Editing & post production",
+                ],
+              },
+            ].map((service, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800"
+              >
+                <h3 className="text-xl font-semibold mb-4">
+                  {service.title}
+                </h3>
+
+                <ul className="space-y-2 text-zinc-400 text-sm">
+                  {service.items.map((item, idx) => (
+                    <li key={idx} className="flex gap-2">
+                      <span className="text-orange-500">✔</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ================= PROCESS ================= */}
+      <section className="relative py-20 px-6 bg-black">
+
+        <div className="relative max-w-6xl mx-auto text-center">
+
+          <h2 className="text-4xl font-bold mb-12">
+            Our <span className="text-orange-500">Process</span>
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+
+            {[
+              { num: "01", title: "Planning", desc: "Konsep & kebutuhan teknis" },
+              { num: "02", title: "Setup", desc: "Persiapan alat & sistem" },
+              { num: "03", title: "Broadcast", desc: "Live execution profesional" },
+            ].map((step, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -10 }}
+                className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800"
+              >
+                <div className="text-5xl text-orange-500/20 mb-4">
+                  {step.num}
+                </div>
+
+                <h3 className="text-xl font-semibold mb-2">
+                  {step.title}
+                </h3>
+
+                <p className="text-zinc-400 text-sm">
+                  {step.desc}
+                </p>
+              </motion.div>
+            ))}
+
+          </div>
+
+        </div>
+      </section>
+
+        {/* ================= GALLERY ================= */}
       <section className="py-24 px-6 bg-black">
+
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center mb-14">
@@ -141,17 +339,12 @@ export default function BroadcastingPage() {
             </p>
           )}
 
-          {!loading && gallery.length === 0 && (
-            <p className="text-center text-zinc-500">
-              Belum ada gallery
-            </p>
-          )}
-
           {!loading && gallery.length > 0 && (
             <div className="grid md:grid-cols-2 gap-6">
 
-              {/* MAIN */}
+              {/* MAIN IMAGE */}
               <div className="relative h-[420px] rounded-2xl overflow-hidden group">
+
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={gallery[index]}
@@ -161,14 +354,19 @@ export default function BroadcastingPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.7 }}
-                    className="w-full h-full object-cover cursor-pointer group-hover:scale-110 transition duration-700"
+                    className="
+                      w-full h-full object-cover cursor-pointer
+                      group-hover:scale-110 transition duration-700
+                    "
                   />
                 </AnimatePresence>
 
+                {/* overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
               </div>
 
-              {/* SIDE */}
+              {/* SIDE IMAGE */}
               <div className="flex flex-col gap-4">
                 {sideImages.map((img, i) => (
                   <div
@@ -181,7 +379,10 @@ export default function BroadcastingPage() {
                   >
                     <img
                       src={img}
-                      className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                      className="
+                        w-full h-full object-cover
+                        group-hover:scale-110 transition duration-700
+                      "
                     />
                   </div>
                 ))}
@@ -210,6 +411,26 @@ export default function BroadcastingPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ================= CTA ================= */}
+      <section className="py-20 text-center px-6 bg-gradient-to-b from-black to-zinc-900">
+
+        <h2 className="text-4xl font-bold">
+          Siap Live Event Tanpa Gangguan?
+        </h2>
+
+        <p className="text-zinc-400 mt-4">
+          Kami siap membantu kebutuhan broadcasting Anda
+        </p>
+
+        <a
+          href="https://wa.me/6285183113349"
+          className="inline-block mt-6 bg-orange-500 px-8 py-4 rounded-full"
+        >
+          Hubungi Kami
+        </a>
+
+      </section>
 
     </main>
   )
