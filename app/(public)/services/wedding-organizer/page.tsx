@@ -126,7 +126,7 @@ const testimonials = [
  
        if (data) {
          const images = data
-           .flatMap((item: Project) => item.gallery || [])
+           .flatMap((item) => item.gallery || [])
            .filter(Boolean)
  
          setGallery(images)
