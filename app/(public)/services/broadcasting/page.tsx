@@ -12,7 +12,188 @@ type Project = {
   gallery: string[] | null
   category_id: string
 }
+/* ================= FAQ DATA ================= */
+/* ================= FAQ DATA ================= */
+const faqData = [
+  {
+   category: "Jasa Broadcasting Live Streaming Profesional Jakarta & Bandung",
+    questions: [
+      {
+        q: "Apa itu jasa broadcasting atau live streaming event?",
+        a: "Jasa broadcasting adalah layanan siaran langsung (live streaming) acara seperti seminar, konser, webinar, corporate event, hingga peluncuran produk ke platform digital seperti YouTube, Zoom, Instagram, dan lainnya."
+      },
+      {
+        q: "Apakah menyediakan jasa live streaming event perusahaan?",
+        a: "Ya, kami menyediakan jasa live streaming profesional untuk event perusahaan seperti meeting, seminar, townhall, dan launching produk dengan kualitas HD hingga 4K."
+      },
+      {
+        q: "Apakah bisa live streaming ke YouTube, Instagram, dan Facebook?",
+        a: "Tentu. Kami menyediakan multi-platform live streaming ke YouTube, Instagram, Facebook, Zoom, dan platform digital lainnya secara bersamaan."
+      },
+      {
+        q: "Apakah menyediakan jasa live streaming seminar dan webinar?",
+        a: "Ya, kami melayani live streaming seminar dan webinar lengkap dengan multi camera, audio profesional, dan dukungan teknis selama acara berlangsung."
+      },
+      {
+        q: "Apakah tersedia multi camera production untuk live streaming?",
+        a: "Ya, kami menggunakan sistem multi camera production agar hasil live streaming lebih profesional, dinamis, dan menarik untuk penonton."
+      },
+      {
+        q: "Apakah bisa live streaming event skala besar seperti konser?",
+        a: "Bisa. Kami berpengalaman menangani live streaming konser, festival, dan event besar dengan sistem broadcasting profesional."
+      },
+      {
+        q: "Apakah menyediakan operator dan tim teknis broadcasting?",
+        a: "Ya, kami menyediakan tim lengkap seperti camera operator, switcher, audio engineer, dan streaming technician profesional."
+      },
+      {
+        q: "Apakah hasil live streaming bisa direkam?",
+        a: "Tentu. Semua live streaming dapat direkam dalam kualitas tinggi untuk kebutuhan dokumentasi dan konten ulang (replay)."
+      },
+      {
+        q: "Apakah bisa live streaming hybrid event (offline + online)?",
+        a: "Ya, kami menyediakan solusi hybrid event yang menggabungkan acara offline dan online secara bersamaan dengan sistem broadcasting profesional."
+      },
+      {
+        q: "Apakah mendukung branding dalam live streaming?",
+        a: "Ya, kami dapat menambahkan overlay branding, logo perusahaan, lower third, dan grafis sesuai identitas brand Anda."
+      }
+    ]
+  },
 
+ {
+    category: "Jasa Live Streaming Event, Webinar & Production Broadcasting Indonesia",
+    questions: [
+      {
+        q: "Berapa harga jasa live streaming atau broadcasting event?",
+        a: "Harga jasa live streaming tergantung pada durasi event, jumlah kamera, lokasi, kebutuhan teknis, serta platform streaming yang digunakan."
+      },
+      {
+        q: "Apakah tersedia jasa live streaming full HD atau 4K?",
+        a: "Ya, kami menyediakan layanan live streaming dengan kualitas Full HD hingga 4K untuk hasil visual yang lebih profesional."
+      },
+      {
+        q: "Apakah bisa live streaming acara pemerintahan atau instansi?",
+        a: "Ya, kami melayani live streaming untuk acara pemerintah, kementerian, BUMN, dan instansi resmi lainnya."
+      },
+      {
+        q: "Apakah menyediakan live streaming untuk wedding atau acara pribadi?",
+        a: "Tentu. Kami juga melayani live streaming wedding, ulang tahun, dan acara pribadi dengan kualitas profesional."
+      },
+      {
+        q: "Apakah mendukung streaming dengan latensi rendah?",
+        a: "Ya, kami menggunakan sistem broadcasting dengan low latency agar tayangan real-time lebih stabil dan minim delay."
+      },
+      {
+        q: "Apakah bisa integrasi dengan Zoom atau platform meeting online?",
+        a: "Bisa. Kami dapat mengintegrasikan live streaming dengan Zoom, Google Meet, Microsoft Teams, dan platform webinar lainnya."
+      },
+      {
+        q: "Apakah menyediakan jasa live streaming outdoor?",
+        a: "Ya, kami berpengalaman dalam live streaming outdoor seperti konser, festival, olahraga, dan event lapangan terbuka."
+      },
+      {
+        q: "Apakah tersedia paket lengkap live streaming + dokumentasi?",
+        a: "Ya, kami menyediakan paket lengkap yang mencakup live streaming, fotografi, videografi, dan after movie event."
+      },
+      {
+        q: "Apakah bisa konsultasi sebelum booking jasa broadcasting?",
+        a: "Tentu. Kami menyediakan konsultasi gratis untuk menentukan kebutuhan teknis live streaming sesuai jenis event Anda."
+      },
+      {
+        q: "Apakah layanan broadcasting tersedia di seluruh Indonesia?",
+        a: "Ya, kami melayani jasa live streaming dan broadcasting di Jakarta, Bandung, Surabaya, Bali, Yogyakarta, dan seluruh Indonesia."
+      }
+    ]
+  }
+
+]
+/* ================= FAQ COMPONENT ================= */
+function FAQSection() {
+  const [open, setOpen] = useState<string | null>(null)
+
+  return (
+   <section className="py-20 bg-black text-white px-6">
+  <div className="max-w-6xl mx-auto">
+
+    {/* Heading */}
+    <div className="text-center mb-14">
+      <h2 className="text-4xl md:text-5xl font-bold">
+        Frequently Asked <span className="text-orange-500">Questions</span>
+      </h2>
+
+      <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
+        Temukan jawaban seputar jasa event organizer Jakarta, event organizer Bandung,
+        dokumentasi event, LPSE, hingga kebutuhan general supplier.
+      </p>
+    </div>
+
+    {/* 2 Column Layout */}
+    <div className="grid md:grid-cols-2 gap-10">
+
+      {faqData.map((section, i) => (
+        <div key={i}>
+
+          {/* Category */}
+          <h3 className="text-xl font-semibold text-orange-500 mb-5">
+            {section.category}
+          </h3>
+
+          {/* Questions */}
+          <div className="space-y-4">
+            {section.questions.map((item, j) => {
+              const id = `${i}-${j}`
+              const isOpen = open === id
+
+              return (
+                <div
+                  key={id}
+                  className="
+                    border border-zinc-800 
+                    rounded-2xl 
+                    bg-zinc-900/50
+                    backdrop-blur-sm
+                    overflow-hidden
+                  "
+                >
+                  <button
+                    onClick={() => setOpen(isOpen ? null : id)}
+                    className="
+                      w-full 
+                      flex 
+                      justify-between 
+                      items-center 
+                      p-5 
+                      text-left
+                    "
+                  >
+                    <span className="font-medium text-sm md:text-base pr-4">
+                      {item.q}
+                    </span>
+
+                    <span className="text-orange-500 text-xl font-bold">
+                      {isOpen ? "−" : "+"}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-5 pb-5 text-zinc-400 text-sm leading-relaxed">
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+
+    </div>
+
+  </div>
+</section>
+  )
+}
 export default function BroadcastingPage() {
 
   const ref = useRef(null)
@@ -411,7 +592,7 @@ export default function BroadcastingPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
+<FAQSection />
       {/* ================= CTA ================= */}
       <section className="py-20 text-center px-6 bg-gradient-to-b from-black to-zinc-900">
 
